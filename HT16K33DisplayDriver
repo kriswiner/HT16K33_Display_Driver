@@ -45,6 +45,25 @@
 //            |_________|
 //               d = A3        DP = A7
 
+// Hookup of QDSP-6064 bubble display
+//
+// Display Pin          HT16K33 pin
+//  1                      C0
+//  2                      A5
+//  3                      A6
+//  4                      C2
+//  5                      A7
+//  6                      C3
+//  7                      A4
+//  8                      A3
+//  9                      A2
+//  10                     C1
+//  11                     A1
+//  12                     A0
+//
+// and so on... each cathode can drive two display cathodes. A total of four, 4-digit, 7-segment displays
+// can be driven with this one chip with just 2 TWI wires and power and ground. That is a lot of display
+// without taking up a lot of the GPIO pins.
 
 static const byte numberTable[] =
 {
