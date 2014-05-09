@@ -138,7 +138,7 @@ void writeInteger(int dsply, int data)
       char ch = string[digit];                   // get the ascii character of the next string segment
 
       for (int j = 0; j < blanks; j++) {
-        writeDigit(dsply, j + 1, 11, 0);            // clear digit wherever there are blanks
+        writeDigit(dsply, j + 1, 11, 0);         // clear digit wherever there are blanks
       }
 
       if (ch == '-') {
@@ -247,7 +247,7 @@ void initHT16K33()
 {
   writeCommand(HT16K33_ADDRESS, HT16K33_ON);         // Turn on system oscillator
   writeCommand(HT16K33_ADDRESS, HT16K33_DISPLAYON);  // Display on
-  writeCommand(HT16K33_ADDRESS, HT16K33_DIM + 5);    // Maximum brightness
+  writeCommand(HT16K33_ADDRESS, HT16K33_DIM + 5);    // Choose brightness
 
 }
 
@@ -256,11 +256,11 @@ void blinkHT16K33(int time)
 {
   writeCommand(HT16K33_ADDRESS, HT16K33_BLINKON);  // Turn on blink
   delay(1000*time);
-  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn on blink
+  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn off blink
 }
 
 
- /* itoa:  convert n to characters in s */
+ /* itoa:  convert integer n to characters in s */
  void itoa(int n, char s[])
  {
      int i, sign;
@@ -297,6 +297,7 @@ void blinkHT16K33(int time)
 	Wire.write(command);              // Put command in Tx buffer
 	Wire.endTransmission();           // Send the Tx buffer
 }
+
   void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
 	Wire.beginTransmission(address);  // Initialize the Tx buffer
