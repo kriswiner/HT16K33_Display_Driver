@@ -1,0 +1,309 @@
+/* HT16K33 Display Driver Basic Example  
+ by: Kris Winer
+ date: May 1, 2014
+ license: Beerware - Use this code however you'd like. If you 
+ find it useful you can buy me a beer some time.
+ 
+ Demonstrate basic functionality including parameterizing the register addresses, initializing the display, 
+ writing integers to one of four seven segment LED displays.
+ 
+ SDA and SCL should have external pull-up resistors (to 3.3V).
+ 10k resistors are on the HT16K33 breakout board.
+ 
+ Hardware setup:
+ HT16K33 Breakout --------- Arduino
+ 3.3V --------------------- 3.3V
+ SDA ----------------------- A4
+ SCL ----------------------- A5
+ GND ---------------------- GND
+ 
+ Note: The HT16K33 is an I2C display driver and uses the Arduino Wire library. 
+ The display driver is 5V tolerant, but we are using a 3.3 V 8 MHz Pro Mini or a 3.3 V Teensy 3.1.
+ We have disabled the internal pull-ups used by the Wire library in the Wire.h/twi.c utility file.
+ We are also using the 400 kHz fast I2C mode by setting the TWI_FREQ  to 400000L /twi.h utility file.
+ */
+#include "Wire.h" 
+
+#define HT16K33_ADDRESS         0x70
+#define HT16K33_ON              0x21  // Commands
+#define HT16K33_STANDBY         0x20
+#define HT16K33_DISPLAYON       0x81
+#define HT16K33_DISPLAYOFF      0x80
+#define HT16K33_BLINKON         0x85 // Blink is off (00), 2 Hz (01), 1 Hz (10), or 0.5 Hz (11) for bits (21) 
+#define HT16K33_BLINKOFF        0x81
+#define HT16K33_DIM             0xE0
+
+// Arrangement for display 1 (4 digit bubble display)
+// 
+//               a = A0
+//             _________
+//            |         |
+//   f = A2   |  g = A4 | b = A1
+//            |_________|
+//            |         |
+//   e = A5   |         | c = A6
+//            |_________|
+//               d = A3        DP = A7
+
+
+static const byte numberTable[] =
+{
+  0x6F, // 0 = 0
+  0x42, // 1 = 1, etc
+  0x3B, // 2
+  0x5B, // 3
+  0x56, // 4
+  0x5D, // 5
+  0x7D, // 6
+  0x43, // 7
+  0x7F, // 8
+  0x57, // 9
+  0x80, // decimal point
+  0x00, // blank
+  0x10, // minus sign
+};
+
+#define display1 1
+#define display2 2
+#define display3 3
+
+void setup()
+{
+  Wire.begin();
+  Serial.begin(38400);
+
+  initHT16K33();  // initialize display
+  
+  clearDsplay(display1);  // clear display
+  clearDsplay(display2);  // clear display
+
+  writeInteger(display1, 8888); // Test display, turn on all segments of display 1
+  blinkHT16K33(4); // Blink for 4 seconds
+  clearDsplay(display1);
+  writeInteger(display2, 8888); // Test display, turn on all segments of display 2
+  blinkHT16K33(4); // Blink for 4 seconds
+  clearDsplay(display2);
+//  writeInteger(display3, 8888); // Test display, turn on all segments of display 2
+//  blinkHT16K33(4); // Blink for 4 seconds
+//  clearDsplay(display3);
+
+}
+
+
+void loop ()
+{
+   for(int j = -100; j < 100; j++) {
+   writeInteger(display1,  j);               // write integer count to display 1
+   writeFloat(display2, (float)(-j)/10., 1); // write float count to display 2
+//   writeInteger(display3, 1000 + j);        // write integer count to display 3
+   delay(100);
+   }
+  
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++ Useful Functions++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void writeInteger(int dsply, int data)
+{
+  char string[10] = "";                          // define character array to hold the digits
+  itoa(data, string);                            // get ascii character string representation of the integer to be displayed
+  uint8_t length = strlen(string);               // get the length of the string; number of digits in integer
+  uint8_t blanks = 4 - length;                   // how many blanks do we have?
+
+  if (length > 4) return;                        // if length greater than 4 digits we can't display on a four-digit display!
+
+  for (uint8_t digit = 0; digit < 4; digit++)    // scroll through each digit to determine what to write to the display
+  {
+      char ch = string[digit];                   // get the ascii character of the next string segment
+
+      for (int j = 0; j < blanks; j++) {
+        writeDigit(dsply, j + 1, 11, 0);            // clear digit wherever there are blanks
+      }
+
+      if (ch == '-') {
+      writeDigit(dsply, digit + 1 + blanks, 12, 0); // check if negative sign needed
+      } 
+      else {                                     // character must be a digit
+      ch -= '0';                                 // convert it to an integer
+      writeDigit(dsply, digit + 1 + blanks, ch, 0); // write it to the display; right justify the integer
+      } 
+  }
+}
+
+void writeFloat(int dsply, float data, int dp)
+{
+  char string[10] = "";  // define character array to hold the digits
+  int dpindex = 0;       // define decimal point index
+  int datanew = 0;
+  
+  switch (dp)
+  {
+    case 0:
+    datanew = (int )(1.*data);
+    break;
+ 
+    case 1:
+    datanew = (int )(10.*data);
+    break;
+
+    case 2:
+    datanew = (int )(100.*data);
+    break;
+ 
+    case 3:
+    datanew = (int )(1000.*data);
+    break;
+   }
+   
+  
+  itoa(datanew, string);                         // get ascii character string representation of the integer to be displayed
+  uint8_t length = strlen(string);               // get the length of the string; number of digits in integer
+  uint8_t blanks = 4 - length;                   // how many blanks do we have?
+
+  if (length > 4) return;                        // if length greater than 4 digits we can't display on a four-digit display!
+
+// scroll through each digit to determine what to write to the display
+for (uint8_t digit = 0; digit < blanks; digit++)      // first the blanks
+  {
+          if( (digit + 1) == (4 - dp) ) {             // handle special case where blank coincides with decimal point
+            writeDigit(dsply, digit + 1, 0, 0x80);    // add leading zero before decimal place
+          }
+          else {
+            writeDigit(dsply, digit + 1, 11, 0x00);   // otherwise clear digit wherever there are blanks
+          }
+  }
+
+  for (uint8_t digit = 0; digit < 4; digit++)         // now the characters to determine what to write to the display
+  {
+      char ch = string[digit];                        // get the ascii character of the next string segment
+
+      if (ch == '-') {
+        if((digit + 1 + blanks) == (4 - dp) ) {
+          writeDigit(dsply, digit + 1 + blanks,  0, 0x80);  // check if negative sign needed, add a decimal point
+          writeDigit(dsply, digit + 0 + blanks, 12, 0x00);  // add a leading zero
+        }
+        else {
+          writeDigit(dsply, digit + 1 + blanks, 12, 0x00);  // check if negative sign needed, no decimal point
+        }
+        }
+      else  {                                               // character must be a digit
+        ch -= '0';                                          // convert it to an integer
+        if((digit + 1 + blanks) == (4 - dp) ) {
+          writeDigit(dsply, digit + 1 + blanks, ch, 0x80);  // write it to the display with decimal point; right justify the integer
+        } 
+        else {
+          writeDigit(dsply, digit + 1 + blanks, ch, 0x00);  // write it to the display; right justify the integer
+        } 
+     }
+  }
+}
+  
+
+void writeDigit(int dsply, byte digit, byte data, byte dp) 
+{
+if(dsply == 1) {
+digit = (digit - 1)*2 ; 
+} 
+if(dsply == 2) {
+  digit = (digit - 1)*2 + 9 ;
+}
+if(dsply == 3) {
+  digit = (digit - 1)*2 + 8;
+}
+writeByte(HT16K33_ADDRESS, digit, numberTable[data] | dp);
+}
+
+
+void clearDsplay(int dsply) 
+{
+  for(int i = 0; i < 9; i++)  {
+  writeDigit(dsply, i, 11, 0);  // Clear display, 11 is blank in the numberTable above
+  }
+}
+
+
+void initHT16K33()
+{
+  writeCommand(HT16K33_ADDRESS, HT16K33_ON);         // Turn on system oscillator
+  writeCommand(HT16K33_ADDRESS, HT16K33_DISPLAYON);  // Display on
+  writeCommand(HT16K33_ADDRESS, HT16K33_DIM + 5);    // Maximum brightness
+
+}
+
+
+void blinkHT16K33(int time) 
+{
+  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKON);  // Turn on blink
+  delay(1000*time);
+  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn on blink
+}
+
+
+ /* itoa:  convert n to characters in s */
+ void itoa(int n, char s[])
+ {
+     int i, sign;
+ 
+     if ((sign = n) < 0)  /* record sign */
+         n = -n;          /* make n positive */
+     i = 0;
+     do {       /* generate digits in reverse order */
+         s[i++] = n % 10 + '0';   /* get next digit */
+     } while ((n /= 10) > 0);     /* delete it */
+     if (sign < 0)
+         s[i++] = '-';
+     s[i] = '\0';
+     reverse(s);
+ } 
+ 
+ /* reverse:  reverse string s in place */
+ void reverse(char s[])
+ {
+     int i, j;
+     char c;
+ 
+     for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+         c = s[i];
+         s[i] = s[j];
+         s[j] = c;
+     }
+ }
+
+  // Wire.h read and write protocols
+  void writeCommand(uint8_t address, uint8_t command)
+  {
+	Wire.beginTransmission(address);  // Initialize the Tx buffer
+	Wire.write(command);              // Put command in Tx buffer
+	Wire.endTransmission();           // Send the Tx buffer
+}
+  void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
+{
+	Wire.beginTransmission(address);  // Initialize the Tx buffer
+	Wire.write(subAddress);           // Put slave register address in Tx buffer
+	Wire.write(data);                 // Put data in Tx buffer
+	Wire.endTransmission();           // Send the Tx buffer
+}
+
+  uint8_t readByte(uint8_t address, uint8_t subAddress)
+{
+	uint8_t data; // `data` will store the register data	 
+	Wire.beginTransmission(address);         // Initialize the Tx buffer
+	Wire.write(subAddress);	                 // Put slave register address in Tx buffer
+	Wire.endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
+	Wire.requestFrom(address, (uint8_t) 1);  // Read one byte from slave register address 
+	data = Wire.read();                      // Fill Rx buffer with result
+	return data;                             // Return data read from slave register
+}
+
+  void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+{  
+	Wire.beginTransmission(address);   // Initialize the Tx buffer
+	Wire.write(subAddress);            // Put slave register address in Tx buffer
+	Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
+	uint8_t i = 0;
+        Wire.requestFrom(address, count);  // Read bytes from slave register address 
+	while (Wire.available()) {
+        dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
+}
