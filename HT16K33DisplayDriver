@@ -5,7 +5,7 @@
  find it useful you can buy me a beer some time.
  
  Demonstrate basic functionality including parameterizing the register addresses, initializing the display, 
- writing integers to one of four seven segment LED displays.
+ writing integers to one or all of four seven segment LED displays.
  
  SDA and SCL should have external pull-up resistors (to 3.3V).
  10k resistors are on the HT16K33 breakout board.
@@ -65,6 +65,7 @@
 // can be driven with this one chip with just 2 TWI wires and power and ground. That is a lot of display
 // without taking up a lot of the GPIO pins.
 
+
 static const byte numberTable[] =
 {
   0x6F, // 0 = 0
@@ -80,11 +81,20 @@ static const byte numberTable[] =
   0x80, // decimal point
   0x00, // blank
   0x10, // minus sign
+  0x77,  // A = 13
+  0x7F,  // B = 14
+  0x2D,  // C = 15
+  0x6F,  // D = 16
+  0x3D,  // E = 17
+  0x35,  // F = 18
+  0x5F,  // G = 19
+  0x76   // H = 20
 };
 
 #define display1 1
 #define display2 2
 #define display3 3
+#define display4 4
 
 void setup()
 {
@@ -93,8 +103,10 @@ void setup()
 
   initHT16K33();  // initialize display
   
-  clearDsplay(display1);  // clear display
-  clearDsplay(display2);  // clear display
+  clearDsplay(display1);  // clear display 1
+  clearDsplay(display2);  // clear display 2
+  clearDsplay(display3);  // clear display 3
+  clearDsplay(display4);  // clear display 4
 
   writeInteger(display1, 8888); // Test display, turn on all segments of display 1
   blinkHT16K33(4); // Blink for 4 seconds
@@ -102,9 +114,28 @@ void setup()
   writeInteger(display2, 8888); // Test display, turn on all segments of display 2
   blinkHT16K33(4); // Blink for 4 seconds
   clearDsplay(display2);
-//  writeInteger(display3, 8888); // Test display, turn on all segments of display 2
-//  blinkHT16K33(4); // Blink for 4 seconds
-//  clearDsplay(display3);
+  writeInteger(display3, 8888); // Test display, turn on all segments of display 3
+  blinkHT16K33(4); // Blink for 4 seconds
+  clearDsplay(display3);
+  writeInteger(display4, 8888); // Test display, turn on all segments of display 4
+  blinkHT16K33(4); // Blink for 4 seconds
+  clearDsplay(display4);
+  
+// Test of character write; these bubble displays, like att seven-segment LED displays
+// are best at displaying numbers. That dosn't mean we can't get creative and display letters also!
+  writeDigit(display1, 1, 13, 0);
+  writeDigit(display1, 2, 14, 0);
+  writeDigit(display1, 3, 15, 0);
+  writeDigit(display1, 4, 16, 0);
+        
+  writeDigit(display2, 1, 17, 0);
+  writeDigit(display2, 2, 18, 0);
+  writeDigit(display2, 3, 19, 0);
+  writeDigit(display2, 4, 20, 0);
+  delay(2000);
+  clearDsplay(display1);
+  clearDsplay(display2);
+  
 
 }
 
@@ -112,12 +143,12 @@ void setup()
 void loop ()
 {
    for(int j = -100; j < 100; j++) {
-   writeInteger(display1,  j);               // write integer count to display 1
-   writeFloat(display2, (float)(-j)/10., 1); // write float count to display 2
-//   writeInteger(display3, 1000 + j);        // write integer count to display 3
-   delay(100);
+   writeFloat(display1, (float)(-j)/10., 1);   // write float count to display 1
+   writeInteger(display4, +j);   // write integer count to display 2
+   writeInteger(display3, -j);   // write integer count to display 3
+   writeFloat(display2, (float)(+j)/10., 1);   // write float count to display 4
+   delay(200);
    }
-  
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -133,19 +164,20 @@ void writeInteger(int dsply, int data)
 
   if (length > 4) return;                        // if length greater than 4 digits we can't display on a four-digit display!
 
+  for (uint8_t digit = 0; digit < blanks; digit++)    // scroll through each digit to determine what to write to the display
+  {
+      writeDigit(dsply, digit + 1, 11, 0);            // clear digit wherever there are blanks
+  }
+
   for (uint8_t digit = 0; digit < 4; digit++)    // scroll through each digit to determine what to write to the display
   {
       char ch = string[digit];                   // get the ascii character of the next string segment
 
-      for (int j = 0; j < blanks; j++) {
-        writeDigit(dsply, j + 1, 11, 0);         // clear digit wherever there are blanks
-      }
-
       if (ch == '-') {
       writeDigit(dsply, digit + 1 + blanks, 12, 0); // check if negative sign needed
       } 
-      else {                                     // character must be a digit
-      ch -= '0';                                 // convert it to an integer
+      else {                                        // character must be a digit
+      ch -= '0';                                    // convert it to an integer
       writeDigit(dsply, digit + 1 + blanks, ch, 0); // write it to the display; right justify the integer
       } 
   }
@@ -223,12 +255,15 @@ for (uint8_t digit = 0; digit < blanks; digit++)      // first the blanks
 void writeDigit(int dsply, byte digit, byte data, byte dp) 
 {
 if(dsply == 1) {
-digit = (digit - 1)*2 ; 
+digit = (digit - 1)*2 + 0; 
 } 
 if(dsply == 2) {
   digit = (digit - 1)*2 + 9 ;
 }
 if(dsply == 3) {
+  digit = (digit - 1)*2 + 1;
+}
+if(dsply == 4) {
   digit = (digit - 1)*2 + 8;
 }
 writeByte(HT16K33_ADDRESS, digit, numberTable[data] | dp);
@@ -247,7 +282,7 @@ void initHT16K33()
 {
   writeCommand(HT16K33_ADDRESS, HT16K33_ON);         // Turn on system oscillator
   writeCommand(HT16K33_ADDRESS, HT16K33_DISPLAYON);  // Display on
-  writeCommand(HT16K33_ADDRESS, HT16K33_DIM + 5);    // Choose brightness
+  writeCommand(HT16K33_ADDRESS, HT16K33_DIM + 5);    // Maximum brightness
 
 }
 
@@ -256,11 +291,11 @@ void blinkHT16K33(int time)
 {
   writeCommand(HT16K33_ADDRESS, HT16K33_BLINKON);  // Turn on blink
   delay(1000*time);
-  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn off blink
+  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn on blink
 }
 
 
- /* itoa:  convert integer n to characters in s */
+ /* itoa:  convert n to characters in s */
  void itoa(int n, char s[])
  {
      int i, sign;
@@ -290,15 +325,14 @@ void blinkHT16K33(int time)
      }
  }
 
-  // Wire.h read and write protocols
-  void writeCommand(uint8_t address, uint8_t command)
+        // Wire.h read and write protocols
+        void writeCommand(uint8_t address, uint8_t command)
   {
 	Wire.beginTransmission(address);  // Initialize the Tx buffer
 	Wire.write(command);              // Put command in Tx buffer
 	Wire.endTransmission();           // Send the Tx buffer
 }
-
-  void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
+        void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
 	Wire.beginTransmission(address);  // Initialize the Tx buffer
 	Wire.write(subAddress);           // Put slave register address in Tx buffer
@@ -306,7 +340,7 @@ void blinkHT16K33(int time)
 	Wire.endTransmission();           // Send the Tx buffer
 }
 
-  uint8_t readByte(uint8_t address, uint8_t subAddress)
+        uint8_t readByte(uint8_t address, uint8_t subAddress)
 {
 	uint8_t data; // `data` will store the register data	 
 	Wire.beginTransmission(address);         // Initialize the Tx buffer
@@ -317,7 +351,7 @@ void blinkHT16K33(int time)
 	return data;                             // Return data read from slave register
 }
 
-  void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+        void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
 	Wire.beginTransmission(address);   // Initialize the Tx buffer
 	Wire.write(subAddress);            // Put slave register address in Tx buffer
