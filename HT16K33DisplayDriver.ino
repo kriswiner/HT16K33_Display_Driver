@@ -121,8 +121,8 @@ void setup()
   blinkHT16K33(4); // Blink for 4 seconds
   clearDsplay(display4);
   
-// Test of character write; these bubble displays, like att seven-segment LED displays
-// are best at displaying numbers. That dosn't mean we can't get creative and display letters also!
+// Test of character write; these bubble displays, like all seven-segment LED displays
+// are best at displaying numbers. That doesn't mean we can't get creative and display letters also!
   writeDigit(display1, 1, 13, 0);
   writeDigit(display1, 2, 14, 0);
   writeDigit(display1, 3, 15, 0);
