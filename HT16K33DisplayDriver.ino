@@ -157,21 +157,21 @@ void loop ()
 
 void writeInteger(int dsply, int data)
 {
-  char string[10] = "";                          // define character array to hold the digits
-  itoa(data, string);                            // get ascii character string representation of the integer to be displayed
-  uint8_t length = strlen(string);               // get the length of the string; number of digits in integer
-  uint8_t blanks = 4 - length;                   // how many blanks do we have?
+  char string[10] = "";                             // define character array to hold the digits
+  itoa(data, string);                               // get ascii character string representation of the integer to be displayed
+  uint8_t length = strlen(string);                  // get the length of the string; number of digits in integer
+  uint8_t blanks = 4 - length;                      // how many blanks do we have?
 
-  if (length > 4) return;                        // if length greater than 4 digits we can't display on a four-digit display!
-
-  for (uint8_t digit = 0; digit < blanks; digit++)    // scroll through each digit to determine what to write to the display
-  {
-      writeDigit(dsply, digit + 1, 11, 0);            // clear digit wherever there are blanks
+  if (length > 4) return;                           // if length greater than 4 digits we can't display on a four-digit display!
+  
+  for (uint8_t digit = 0; digit < blanks; digit++)  // scroll through each digit to determine what to write to the display
+  
+      writeDigit(dsply, digit + 1, 11, 0);          // clear digit wherever there are blanks
   }
 
-  for (uint8_t digit = 0; digit < 4; digit++)    // scroll through each digit to determine what to write to the display
+  for (uint8_t digit = 0; digit < 4; digit++)       // scroll through each digit to determine what to write to the display
   {
-      char ch = string[digit];                   // get the ascii character of the next string segment
+      char ch = string[digit];                      // get the ascii character of the next string segment
 
       if (ch == '-') {
       writeDigit(dsply, digit + 1 + blanks, 12, 0); // check if negative sign needed
@@ -186,7 +186,6 @@ void writeInteger(int dsply, int data)
 void writeFloat(int dsply, float data, int dp)
 {
   char string[10] = "";  // define character array to hold the digits
-  int dpindex = 0;       // define decimal point index
   int datanew = 0;
   
   switch (dp)
@@ -209,11 +208,11 @@ void writeFloat(int dsply, float data, int dp)
    }
    
   
-  itoa(datanew, string);                         // get ascii character string representation of the integer to be displayed
-  uint8_t length = strlen(string);               // get the length of the string; number of digits in integer
-  uint8_t blanks = 4 - length;                   // how many blanks do we have?
+  itoa(datanew, string);                              // get ascii character string representation of the integer to be displayed
+  uint8_t length = strlen(string);                    // get the length of the string; number of digits in integer
+  uint8_t blanks = 4 - length;                        // how many blanks do we have?
 
-  if (length > 4) return;                        // if length greater than 4 digits we can't display on a four-digit display!
+  if (length > 4) return;                             // if length greater than 4 digits we can't display on a four-digit display!
 
 // scroll through each digit to determine what to write to the display
 for (uint8_t digit = 0; digit < blanks; digit++)      // first the blanks
@@ -282,8 +281,7 @@ void initHT16K33()
 {
   writeCommand(HT16K33_ADDRESS, HT16K33_ON);         // Turn on system oscillator
   writeCommand(HT16K33_ADDRESS, HT16K33_DISPLAYON);  // Display on
-  writeCommand(HT16K33_ADDRESS, HT16K33_DIM + 5);    // Maximum brightness
-
+  writeCommand(HT16K33_ADDRESS, HT16K33_DIM + 5);    // Set brightness
 }
 
 
@@ -291,7 +289,7 @@ void blinkHT16K33(int time)
 {
   writeCommand(HT16K33_ADDRESS, HT16K33_BLINKON);  // Turn on blink
   delay(1000*time);
-  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn on blink
+  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn off blink
 }
 
 
