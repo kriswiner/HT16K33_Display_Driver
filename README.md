@@ -12,7 +12,12 @@ First I breadboarded the circuit with Adafruit's [HT16K33 breakout board] (http:
 
 ![](http://www.adafruit.com/images/970x728/1427-00.jpg)
 
-Here is what my initial circuit looked like. I was able to easily get two bubble displays running from the HT16K33 breakout on my little breadboard. I actually added a third display using jumper wires to another breadboard just to prove that I really could drive four (well, at least three!) of the bubble displays at a time with just one HT16K33.
+Here is what my initial circuit looked like.
+
+![](https://cloud.githubusercontent.com/assets/6698410/3207741/b97316ce-edfc-11e3-8077-10a0ca2ddf08.jpeg)
+
+
+I was able to easily get two bubble displays running from the HT16K33 breakout on my little breadboard. I actually added a third display using jumper wires to another breadboard just to prove that I really could drive four (well, at least three!) of the bubble displays at a time with just one HT16K33.
 
 After that success, I spent most of a Saturday soldering up a circuit on a perf board with four bubble displays and one HT16K33. This is what it looks like:
 
