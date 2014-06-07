@@ -18,7 +18,7 @@ After that success, I spent most of a Saturday soldering up a circuit on a perf 
 
 ![](https://cloud.githubusercontent.com/assets/6698410/3207651/a2fefb0e-edf4-11e3-9e32-181882e85784.jpeg)
 
-Look at all those wires! This is not a great picture but you can see that all four displays are working using the display driver sketch in this repository, which currently displays integer (top left and bottom right) or floating point (top right and bottom left) numbers of four digits or less. The sketch has simple utility but is good enough to display temperature, time, and other sensor output.
+Look at all those wires! This is not a great picture but you can see that all four displays are working using the display driver sketch in this repository, which currently displays floating point (top left and bottom right) or integer (top right and bottom left) numbers of four digits or less. The sketch has simple utility but is good enough to display temperature, time, and other sensor output.
 
 The last step was biting the bullet and learning how to use Eagle to design a PCB with the same circuit. It took only a few days mostly because: 1) I was able to take advantage of all the work Adafruit and [uChip](https://github.com/uChip/BubbleDisplay) had already done and, 2) I got a lot of help from Jim Lindblom of [Sparkfun] (http://www.sparkfun.com) and Dan Sheadel of [OSHPark] (http://www.oshpark.com), where I am having the first prototypes made. Here is what the boards will look like at almost actual size.
 
