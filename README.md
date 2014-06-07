@@ -22,6 +22,6 @@ Look at all those wires! This is not a great picture but you can see that all fo
 
 The last step was biting the bullet and learning how to use Eagle to design a PCB with the same circuit. It took only a few days mostly because: 1) I was able to take advantage of all the work Adafruit and [uChip](https://github.com/uChip/BubbleDisplay) had already done and, 2) I got a lot of help from Jim Lindblom of [Sparkfun] (http://www.sparkfun.com) and Dan Sheadel of [OSHPark] (http://www.oshpark.com), where I am having the first prototypes made. Here is what the boards will look like at almost actual size.
 
-![](http://uploads.oshpark.com/uploads/project/top_image/LanQ5PLH/thumb_i.png)
+![](http://uploads.oshpark.com/uploads/project/top_image/LanQ5PLH/thumb_i.png) ![](http://uploads.oshpark.com/uploads/project/bottom_image/LanQ5PLH/thumb_i.png)
 
 Now I am waiting for delivery. When I get the boards assembled and working, I will post the results.
