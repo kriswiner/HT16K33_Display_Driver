@@ -16,5 +16,12 @@ Here is what my initial circuit looked like. I was able to easily get two bubble
 
 After that success, I spent most of a Saturday soldering up a circuit on a perf board with foud bubble displays and one HT16K33. This is what it looks like:
 
+![](https://cloud.githubusercontent.com/assets/6698410/3207651/a2fefb0e-edf4-11e3-9e32-181882e85784.jpeg)
+
+Look at all those wires! These are not great pictures but you can see that all four displays are working using the display driver sketch in this repository, which currently displays and integer or floating point number of four digits or less. The sketch has simple utility but is good enough to display temperature, time, and other sensor output.
+
+The last step was biting the bullet and learning how to use Eagle to design a PCB with the same circuit. It took only a few days mostly because 1) I was able to take advantage of all the work Adafruit and uChip had already done and 2) I got a lot of help from Jim Lindblom of Sparkfun and Dan Sheadel of OSHPark, where I am having the first prototypes made. Here is what the boards will look like.
 
 ![](http://uploads.oshpark.com/uploads/project/top_image/LanQ5PLH/thumb_i.png)
+
+Now I am waiting for delivery. When I get the boards assembled and working, I will post the results.
