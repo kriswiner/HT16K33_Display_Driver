@@ -6,4 +6,4 @@ Simple demo of driving four seven segment bubble displays with one HT16K33 displ
 Each HT16K33 cathode pin can drive two display cathodes. The HT16K33 can drive a total of 128 LED segments.
 So a total of four, 4-digit, 7-segment displays can be driven with this one chip with just 2 TWI wires and power and ground. That is a lot of display without taking up a lot of the GPIO pins.
 
-![](http://playground.arduino.cc/uploads/Main/mpu-6050.jpg)
+![](http://uploads.oshpark.com/uploads/project/top_image/LanQ5PLH/thumb_i.png)
