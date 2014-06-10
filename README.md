@@ -8,11 +8,11 @@ So a total of four, 4-digit, 7-segment displays can be driven with this one chip
 
 I decided to try to reduce this idea of driving four bubble displays to practice; what follows is what I did and how it worked out.
 
-First I breadboarded the circuit with Adafruit's [HT16K33 breakout board] (http://www.adafruit.com/products/1427) and connected to the 3.3 V reference from an 8 MHz Pro Mini shown here:
-
+First I breadboarded the circuit with Adafruit's [HT16K33 breakout board] (http://www.adafruit.com/products/1427) shown here:
+ 
 ![](http://www.adafruit.com/images/970x728/1427-00.jpg)
 
-Here is what my initial circuit looked like.
+Here is what my initial circuit looked like. The HT16K33 is powered by the 3.3 V reference from and connected to the I2C of an 8 MHz Pro Mini Arduino microcontroller.
 
 ![](https://cloud.githubusercontent.com/assets/6698410/3207741/b97316ce-edfc-11e3-8077-10a0ca2ddf08.jpeg)
 
