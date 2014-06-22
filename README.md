@@ -29,4 +29,4 @@ The last step was biting the bullet and learning how to use Eagle to design a PC
 
 ![](http://uploads.oshpark.com/uploads/project/top_image/LanQ5PLH/thumb_i.png).....![](http://uploads.oshpark.com/uploads/project/bottom_image/LanQ5PLH/thumb_i.png)
 
-Now I am waiting for delivery. When I get the boards assembled and working, I will post the results.
+I received the boards from OSHPark and promptly put the components on. It was straightforward to solder even the small diode; 0805 passive components are easy to handle with a good pair of tweezers. Using a soldering iron for surface mounted components is doable but the solder joints are never going to look like machine-made parts do without a lot of practice. I noticed that the displays worked just fine just mounted in their through holes before soldering; I guess there is enough contact to allow the proper current flow even without soldering. I assembled all three boards and---they all workd! I love it when this happens. This is what the boards look like after putting everything together.
