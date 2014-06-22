@@ -31,7 +31,7 @@
 #define HT16K33_DISPLAYOFF      0x80
 #define HT16K33_BLINKON         0x85 // Blink is off (00), 2 Hz (01), 1 Hz (10), or 0.5 Hz (11) for bits (21) 
 #define HT16K33_BLINKOFF        0x81
-#define HT16K33_DIM             0xE0
+#define HT16K33_DIM             0xE0 | 0x08 // Set dim from 0x00 (1/16th duty ccycle) to 0x0F (16/16 duty cycle)
 
 // Arrangement for display 1 (4 digit bubble display)
 // 
@@ -88,7 +88,18 @@ static const byte numberTable[] =
   0x3D,  // E = 17
   0x35,  // F = 18
   0x5F,  // G = 19
-  0x76   // H = 20
+  0x76,   // H = 20
+  0x42,   // I = 21
+  0x6A,   // J = 22
+  0x00,   // No K!
+  0x2C,   // L = 24
+  0x00,   // No M!
+  0x67,   // N = 26
+  0x6F,   // O = 27
+  0x37,   // P = 28
+  0x57,   // Q = 29
+  0x77,   // R = 30
+  0x5D    // S = 31
 };
 
 #define display1 1
@@ -109,34 +120,44 @@ void setup()
   clearDsplay(display4);  // clear display 4
 
   writeInteger(display1, 8888); // Test display, turn on all segments of display 1
-  blinkHT16K33(4); // Blink for 4 seconds
+  blinkHT16K33(2); // Blink for 2 seconds
   clearDsplay(display1);
   writeInteger(display2, 8888); // Test display, turn on all segments of display 2
-  blinkHT16K33(4); // Blink for 4 seconds
+  blinkHT16K33(2); // Blink for 2 seconds
   clearDsplay(display2);
   writeInteger(display3, 8888); // Test display, turn on all segments of display 3
-  blinkHT16K33(4); // Blink for 4 seconds
+  blinkHT16K33(2); // Blink for 2 seconds
   clearDsplay(display3);
   writeInteger(display4, 8888); // Test display, turn on all segments of display 4
-  blinkHT16K33(4); // Blink for 4 seconds
+  blinkHT16K33(2); // Blink for 2 seconds
   clearDsplay(display4);
   
 // Test of character write; these bubble displays, like all seven-segment LED displays
 // are best at displaying numbers. That doesn't mean we can't get creative and display letters also!
-  writeDigit(display1, 1, 13, 0);
-  writeDigit(display1, 2, 14, 0);
-  writeDigit(display1, 3, 15, 0);
-  writeDigit(display1, 4, 16, 0);
+  writeDigit(display2, 1, 13, 0);
+  writeDigit(display2, 2, 14, 0);
+  writeDigit(display2, 3, 15, 0);
+  writeDigit(display2, 4, 16, 0);
         
-  writeDigit(display2, 1, 17, 0);
-  writeDigit(display2, 2, 18, 0);
-  writeDigit(display2, 3, 19, 0);
-  writeDigit(display2, 4, 20, 0);
+  writeDigit(display1, 1, 17, 0);
+  writeDigit(display1, 2, 18, 0);
+  writeDigit(display1, 3, 19, 0);
+  writeDigit(display1, 4, 20, 0);  
+  
+  writeDigit(display4, 1, 22, 0);
+  writeDigit(display4, 2, 24, 0);
+  writeDigit(display4, 3, 26, 0);
+  writeDigit(display4, 4, 27, 0);
+        
+  writeDigit(display3, 1, 28, 0);
+  writeDigit(display3, 2, 29, 0);
+  writeDigit(display3, 3, 30, 0);
+  writeDigit(display3, 4, 31, 0);
   delay(2000);
   clearDsplay(display1);
   clearDsplay(display2);
-  
-
+  clearDsplay(display3);
+  clearDsplay(display4);
 }
 
 
@@ -144,9 +165,9 @@ void loop ()
 {
    for(int j = -100; j < 100; j++) {
    writeFloat(display1, (float)(-j)/10., 1);   // write float count to display 1
-   writeInteger(display4, +j);   // write integer count to display 2
+   writeInteger(display2, +j);   // write integer count to display 2
    writeInteger(display3, -j);   // write integer count to display 3
-   writeFloat(display2, (float)(+j)/10., 1);   // write float count to display 4
+   writeFloat(display4, (float)(+j)/10., 1);   // write float count to display 4
    delay(200);
    }
 }
@@ -155,7 +176,7 @@ void loop ()
 //++ Useful Functions++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void writeInteger(int dsply, int data)
+void writeInteger(uint8_t dsply, int data)
 {
   char string[10] = "";                             // define character array to hold the digits
   itoa(data, string);                               // get ascii character string representation of the integer to be displayed
@@ -163,9 +184,9 @@ void writeInteger(int dsply, int data)
   uint8_t blanks = 4 - length;                      // how many blanks do we have?
 
   if (length > 4) return;                           // if length greater than 4 digits we can't display on a four-digit display!
-  
+
   for (uint8_t digit = 0; digit < blanks; digit++)  // scroll through each digit to determine what to write to the display
-  
+  {
       writeDigit(dsply, digit + 1, 11, 0);          // clear digit wherever there are blanks
   }
 
@@ -183,7 +204,7 @@ void writeInteger(int dsply, int data)
   }
 }
 
-void writeFloat(int dsply, float data, int dp)
+void writeFloat(uint8_t dsply, float data, uint8_t dp)
 {
   char string[10] = "";  // define character array to hold the digits
   int datanew = 0;
@@ -208,26 +229,26 @@ void writeFloat(int dsply, float data, int dp)
    }
    
   
-  itoa(datanew, string);                              // get ascii character string representation of the integer to be displayed
-  uint8_t length = strlen(string);                    // get the length of the string; number of digits in integer
-  uint8_t blanks = 4 - length;                        // how many blanks do we have?
+  itoa(datanew, string);                                    // get ascii character string representation of the integer to be displayed
+  uint8_t length = strlen(string);                          // get the length of the string; number of digits in integer
+  uint8_t blanks = 4 - length;                              // how many blanks do we have?
 
-  if (length > 4) return;                             // if length greater than 4 digits we can't display on a four-digit display!
+  if (length > 4) return;                                   // if length greater than 4 digits we can't display on a four-digit display!
 
 // scroll through each digit to determine what to write to the display
-for (uint8_t digit = 0; digit < blanks; digit++)      // first the blanks
+for (uint8_t digit = 0; digit < blanks; digit++)            // first the blanks
   {
-          if( (digit + 1) == (4 - dp) ) {             // handle special case where blank coincides with decimal point
-            writeDigit(dsply, digit + 1, 0, 0x80);    // add leading zero before decimal place
+          if( (digit + 1) == (4 - dp) ) {                   // handle special case where blank coincides with decimal point
+            writeDigit(dsply, digit + 1, 0, 0x80);          // add leading zero before decimal place
           }
           else {
-            writeDigit(dsply, digit + 1, 11, 0x00);   // otherwise clear digit wherever there are blanks
+            writeDigit(dsply, digit + 1, 11, 0x00);         // otherwise clear digit wherever there are blanks
           }
   }
 
-  for (uint8_t digit = 0; digit < 4; digit++)         // now the characters to determine what to write to the display
+  for (uint8_t digit = 0; digit < 4; digit++)               // now the characters to determine what to write to the display
   {
-      char ch = string[digit];                        // get the ascii character of the next string segment
+      char ch = string[digit];                              // get the ascii character of the next string segment
 
       if (ch == '-') {
         if((digit + 1 + blanks) == (4 - dp) ) {
@@ -251,19 +272,19 @@ for (uint8_t digit = 0; digit < blanks; digit++)      // first the blanks
 }
   
 
-void writeDigit(int dsply, byte digit, byte data, byte dp) 
+void writeDigit(uint8_t dsply, uint8_t digit, uint8_t data, uint8_t dp) 
 {
 if(dsply == 1) {
-digit = (digit - 1)*2 + 0; 
+  digit = (digit - 1)*2 + 0; 
 } 
 if(dsply == 2) {
-  digit = (digit - 1)*2 + 9 ;
+  digit = (digit - 1)*2 + 8 ;
 }
 if(dsply == 3) {
   digit = (digit - 1)*2 + 1;
 }
 if(dsply == 4) {
-  digit = (digit - 1)*2 + 8;
+  digit = (digit - 1)*2 + 9;
 }
 writeByte(HT16K33_ADDRESS, digit, numberTable[data] | dp);
 }
@@ -271,7 +292,7 @@ writeByte(HT16K33_ADDRESS, digit, numberTable[data] | dp);
 
 void clearDsplay(int dsply) 
 {
-  for(int i = 0; i < 9; i++)  {
+  for(int i = 0; i < 8; i++)  {
   writeDigit(dsply, i, 11, 0);  // Clear display, 11 is blank in the numberTable above
   }
 }
@@ -281,7 +302,8 @@ void initHT16K33()
 {
   writeCommand(HT16K33_ADDRESS, HT16K33_ON);         // Turn on system oscillator
   writeCommand(HT16K33_ADDRESS, HT16K33_DISPLAYON);  // Display on
-  writeCommand(HT16K33_ADDRESS, HT16K33_DIM + 5);    // Set brightness
+  writeCommand(HT16K33_ADDRESS, HT16K33_DIM);        // Set brightness
+
 }
 
 
@@ -289,7 +311,7 @@ void blinkHT16K33(int time)
 {
   writeCommand(HT16K33_ADDRESS, HT16K33_BLINKON);  // Turn on blink
   delay(1000*time);
-  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn off blink
+  writeCommand(HT16K33_ADDRESS, HT16K33_BLINKOFF);  // Turn on blink
 }
 
 
