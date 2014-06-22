@@ -5992,7 +5992,6 @@ Standard 11x14 US Ledger frame</description>
 <sheets>
 <sheet>
 <plain>
-<text x="337.82" y="-66.04" size="1.778" layer="91">Kris Winer</text>
 </plain>
 <instances>
 <instance part="R1" gate="G$1" x="27.94" y="55.88" rot="R270"/>
