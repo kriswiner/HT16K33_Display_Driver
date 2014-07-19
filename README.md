@@ -50,3 +50,6 @@ Update: Well I think I figured out the display ordering problem. In some sense I
 
 I got the boards assembled and tested and they look pretty good! They are a little smaller than the first version, don't have that annoying display order problem, and have a slightly more rational trace pattern as well as thicker traces for power and ground. Here are a few photos:
 
+![](https://cloud.githubusercontent.com/assets/6698410/3633528/bdde4c3c-0ee6-11e4-95a2-d3844966aa80.png)    ![](https://cloud.githubusercontent.com/assets/6698410/3633539/02c166ea-0ee7-11e4-8733-b62584353d1f.png)
+
+
